@@ -222,15 +222,20 @@ namespace SignalRBaseHubClientLib
 
         #region Cancel, Dispose
 
-        public void Cancel() 
+        public async Task Cancel() 
         {
             _logger.LogInformation($"Hub '{Url}': 'Cancel()' is called");
+            var count = await RpcAsync("_", "KillClientSessionsIfExist", ClientId);
             _cts.Cancel();
         }
 
         public void Dispose() 
         {
             _logger.LogInformation($"Hub '{Url}': 'Dispose()' is called");
+
+            if (!_cts.IsCancellationRequested)
+                Cancel().Wait();
+
             Connection.DisposeAsync().Wait();
         }
 

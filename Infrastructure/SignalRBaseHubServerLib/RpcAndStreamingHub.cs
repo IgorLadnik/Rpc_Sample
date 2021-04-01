@@ -1,14 +1,15 @@
-﻿using System.Reactive.Linq;
+﻿using System;
+using System.Text.Json;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Channels;
 using System.Collections.Concurrent;
+using System.Text;
 using Microsoft.AspNetCore.SignalR;
-using AsyncAutoResetEventLib;
-using System.Text.Json;
-using System.Collections.Generic;
-using System;
-using System.Linq;
 using Microsoft.Extensions.Logging;
+using AsyncAutoResetEventLib;
 using DtoLib;
 
 namespace SignalRBaseHubServerLib
@@ -47,7 +48,19 @@ namespace SignalRBaseHubServerLib
 
         private int _isValid = 0;
 
-        private readonly static Dictionary<string, Descriptor> _dctInterface = new();
+        private readonly static Dictionary<string, Descriptor> _dctInterface = new() 
+        { 
+            { 
+                "_", new Descriptor 
+                { 
+                    dctType = new() 
+                    {
+                        { "System.String", typeof(string) }
+                    } 
+                } 
+            } 
+        };
+
         protected readonly ILogger _logger;
         private readonly ILoggerFactory _loggerFactory;
 
@@ -206,7 +219,7 @@ namespace SignalRBaseHubServerLib
 
         #endregion Resolve, CreateInstance
 
-        #region Rpc, StartStreaming
+        #region Rpc, StartStreaming, KillClientSessionsIfExist
 
         public RpcDtoResponse Rpc(RpcDtoRequest arg) => Rpc(arg, false);
 
@@ -214,12 +227,17 @@ namespace SignalRBaseHubServerLib
 
         private RpcDtoResponse Rpc(RpcDtoRequest arg, bool isOneWay)
         {
-            if (!_dctInterface.TryGetValue(arg.InterfaceName, out Descriptor descriptor))
+            if (!_dctInterface.ContainsKey(arg.InterfaceName))
                 throw new Exception($"Interface '{arg.InterfaceName}' is not regidtered");
 
             var methodArgs = GetMethodArguments(arg);
             var localOb = Resolve(arg.InterfaceName, arg.ClientId);
-            var directCall = localOb as IDirectCall;
+
+            IDirectCall directCall = null;
+            if (localOb == null)
+                localOb = this;
+            else
+                directCall = localOb as IDirectCall;
 
             object result;
             try
@@ -268,7 +286,30 @@ namespace SignalRBaseHubServerLib
                 }
             }).AsChannelReader();
 
-        #endregion // Rpc, StartStreaming 
+        public int KillClientSessionsIfExist(string clientId)
+        {
+            var interfacesCount = 0;
+            StringBuilder sb = new();
+            foreach (var k in _dctInterface.Keys)
+            {
+                var descriptor = _dctInterface[k];
+                if (descriptor.isPerSession && descriptor.dctSession != null && descriptor.dctSession.TryRemove(clientId, out PerSessionDescriptor psd))
+                {
+                    interfacesCount++;
+                    sb.Append($"'{k}', ");
+                }
+            }
+
+            if (sb.Length > 0)
+            {
+                var tempStr = sb.ToString().Substring(0, sb.Length - 2);
+                _logger.LogInformation($"Sessions for client '{clientId}' have been deleted for interfaces {tempStr}");
+            }
+
+            return interfacesCount;
+        }
+
+        #endregion // Rpc, StartStreaming, KillClientSessionsIfExist
 
         #region Aux
 

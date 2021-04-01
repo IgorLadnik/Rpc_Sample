@@ -46,6 +46,12 @@ namespace SignalRClient
 
             AutoResetEvent ev = new(false);
 
+            var args1 = new Arg1[]
+                {
+                            new Arg1 { Id = "0", Arg2Props = new() { new() { Id = "0.0" }, new() { Id = "0.1" } } },
+                            new Arg1 { Id = "1", Arg2Props = new() { new() { Id = "1.0" }, new() { Id = "1.1" } } }
+                };
+
             _ = Task.Run(async () =>
             {
                 // Client provides handler for server's call of method ReceiveMessage
@@ -57,14 +63,11 @@ namespace SignalRClient
 
                     var result42 = await hubClient.RpcAsync("IRemoteCall1", "Simple");
 
-                    var args1 = new Arg1[]
-                        {
-                            new Arg1 { Id = "0", Arg2Props = new() { new() { Id = "0.0" }, new() { Id = "0.1" } } },
-                            new Arg1 { Id = "1", Arg2Props = new() { new() { Id = "1.0" }, new() { Id = "1.1" } } }
-                        };
-
                     var task1 = hubClient.RpcAsync("IRemoteCall1", "Foo", "theName", args1);
                     var task2 = hubClient.RpcAsync("IRemoteCall2", "Foo", "theName", args1);
+
+                    hubClient.RpcOneWay("IRemoteCall1", "Foo", "theName", args1);
+                    hubClient.RpcOneWay("IRemoteCall2", "Foo", "theName", args1);
 
                     var echo = await hubClient.RpcAsync("IRemoteCall1", "Echo", " my text");
 
@@ -120,7 +123,7 @@ namespace SignalRClient
             Console.WriteLine("Press any key to cancel...");
             Console.ReadKey();
             ev.Set();
-            hubClient.Cancel();
+            await hubClient.Cancel();
 
             Console.WriteLine("Press any key to quit...");
             Console.ReadKey();
