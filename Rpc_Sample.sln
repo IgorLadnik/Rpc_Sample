@@ -1,0 +1,93 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31112.23
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{8133C2C6-8FAA-417F-8629-1C5916999DE3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncAutoResetEventLib", "Infrastructure\AsyncAutoResetEventLib\AsyncAutoResetEventLib.csproj", "{E26E7F7D-C5CC-480A-8E20-ACF55504908C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignalRBaseHubClientLib", "Infrastructure\SignalRBaseHubClientLib\SignalRBaseHubClientLib.csproj", "{EE38515E-B18A-4046-90DD-B9069E1152CB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CEBB73E7-C5FE-4EEB-BB0D-CDD8CA8EAC22}"
+	ProjectSection(SolutionItems) = preProject
+		Read_Me.txt = Read_Me.txt
+		Run_IISExpressTestSite.cmd = Run_IISExpressTestSite.cmd
+		Run_SignalRSvc.cmd = Run_SignalRSvc.cmd
+		Run_SignalRTestClient.cmd = Run_SignalRTestClient.cmd
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignalRBaseHubServerLib", "Infrastructure\SignalRBaseHubServerLib\SignalRBaseHubServerLib.csproj", "{6A081747-6E93-46A5-9E0A-E46E89D6E9BC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignalRSvc", "SignalRSvc\SignalRSvc.csproj", "{6920A0B6-8F63-4BB2-A490-87CABF62FD5E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RemoteCallable", "RemoteCallable", "{DEC9351C-04DF-470A-91D3-8D0B3A34B627}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RemoteInterfaces", "RemoteCallable\RemoteInterfaces\RemoteInterfaces.csproj", "{405E5F10-5BC2-4EA9-A7BF-BA77AF90011D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RemoteImplementations", "RemoteCallable\RemoteImplementations\RemoteImplementations.csproj", "{376B3588-717B-4503-875D-63501A2AA571}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DtoLib", "Infrastructure\DtoLib\DtoLib.csproj", "{1C2FE88C-66A2-4CEA-A5B4-3036D9AA212D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessageProviderLib", "MessageProviderLib\MessageProviderLib.csproj", "{AC98F800-C920-47DF-B1A6-78ECB61C7188}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignalRClient", "SignalRClient\SignalRClient.csproj", "{7ED14F49-FB3F-4E43-8B97-E9AFEAF54405}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E26E7F7D-C5CC-480A-8E20-ACF55504908C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E26E7F7D-C5CC-480A-8E20-ACF55504908C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E26E7F7D-C5CC-480A-8E20-ACF55504908C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E26E7F7D-C5CC-480A-8E20-ACF55504908C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE38515E-B18A-4046-90DD-B9069E1152CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE38515E-B18A-4046-90DD-B9069E1152CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE38515E-B18A-4046-90DD-B9069E1152CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE38515E-B18A-4046-90DD-B9069E1152CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A081747-6E93-46A5-9E0A-E46E89D6E9BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A081747-6E93-46A5-9E0A-E46E89D6E9BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A081747-6E93-46A5-9E0A-E46E89D6E9BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A081747-6E93-46A5-9E0A-E46E89D6E9BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6920A0B6-8F63-4BB2-A490-87CABF62FD5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6920A0B6-8F63-4BB2-A490-87CABF62FD5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6920A0B6-8F63-4BB2-A490-87CABF62FD5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6920A0B6-8F63-4BB2-A490-87CABF62FD5E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{405E5F10-5BC2-4EA9-A7BF-BA77AF90011D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{405E5F10-5BC2-4EA9-A7BF-BA77AF90011D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{405E5F10-5BC2-4EA9-A7BF-BA77AF90011D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{405E5F10-5BC2-4EA9-A7BF-BA77AF90011D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{376B3588-717B-4503-875D-63501A2AA571}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{376B3588-717B-4503-875D-63501A2AA571}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{376B3588-717B-4503-875D-63501A2AA571}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{376B3588-717B-4503-875D-63501A2AA571}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C2FE88C-66A2-4CEA-A5B4-3036D9AA212D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C2FE88C-66A2-4CEA-A5B4-3036D9AA212D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C2FE88C-66A2-4CEA-A5B4-3036D9AA212D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C2FE88C-66A2-4CEA-A5B4-3036D9AA212D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC98F800-C920-47DF-B1A6-78ECB61C7188}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC98F800-C920-47DF-B1A6-78ECB61C7188}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC98F800-C920-47DF-B1A6-78ECB61C7188}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC98F800-C920-47DF-B1A6-78ECB61C7188}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7ED14F49-FB3F-4E43-8B97-E9AFEAF54405}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7ED14F49-FB3F-4E43-8B97-E9AFEAF54405}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7ED14F49-FB3F-4E43-8B97-E9AFEAF54405}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7ED14F49-FB3F-4E43-8B97-E9AFEAF54405}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E26E7F7D-C5CC-480A-8E20-ACF55504908C} = {8133C2C6-8FAA-417F-8629-1C5916999DE3}
+		{EE38515E-B18A-4046-90DD-B9069E1152CB} = {8133C2C6-8FAA-417F-8629-1C5916999DE3}
+		{6A081747-6E93-46A5-9E0A-E46E89D6E9BC} = {8133C2C6-8FAA-417F-8629-1C5916999DE3}
+		{405E5F10-5BC2-4EA9-A7BF-BA77AF90011D} = {DEC9351C-04DF-470A-91D3-8D0B3A34B627}
+		{376B3588-717B-4503-875D-63501A2AA571} = {DEC9351C-04DF-470A-91D3-8D0B3A34B627}
+		{1C2FE88C-66A2-4CEA-A5B4-3036D9AA212D} = {8133C2C6-8FAA-417F-8629-1C5916999DE3}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B295322B-4D9D-478A-8CC5-5C63080DAA67}
+	EndGlobalSection
+EndGlobal
