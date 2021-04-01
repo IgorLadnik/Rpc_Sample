@@ -48,6 +48,9 @@ namespace SignalRClient
 
             _ = Task.Run(async () =>
             {
+                // Client provides handler for server's call of method ReceiveMessage
+                hubClient.Connection.On("ReceiveMessage", (string s0, string s1) => logger.LogInformation($"ReceiveMessage: {s0} {s1}"));
+
                 while (!ev.WaitOne(3000))
                 {
                     #region Rpc
@@ -89,9 +92,6 @@ namespace SignalRClient
                     #endregion // Rpc
 
                     #region InvokeAsync
-
-                    // Client provides handler for server's call of method ReceiveMessage
-                    hubClient.Connection.On("ReceiveMessage", (string s0, string s1) => logger.LogInformation($"ReceiveMessage: {s0} {s1}"));
 
                     // Client calls server's method ProcessDto
                     var jarr = (JArray)await hubClient.InvokeAsync("ProcessMessage",
