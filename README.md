@@ -28,7 +28,7 @@ One way call ("fire-and-forget") is also implemented with method <i>RpcOneWay()<
 </p>
 <p>
 Implementation of this feature requires class derived from class <i>RpcAndStreamingHub&lt;Message&gt;</i> on 
-the server side with method to be called. Client method InvokeAsync() provides the feature.
+the server side with method to be called. Client method <i>InvokeAsync()</i> provides the feature.
 </p>
 <p>
 
