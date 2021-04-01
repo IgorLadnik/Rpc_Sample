@@ -35,6 +35,8 @@ namespace RemoteImplementations
         }
 
         public string Echo(string text) => $"Echo1: {text}";
+
+        public int Simple() => 42;
     }
 
     public class RemoteCall2 : IRemoteCall2, IDirectCall, ILog

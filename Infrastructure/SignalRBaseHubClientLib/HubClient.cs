@@ -173,7 +173,7 @@ namespace SignalRBaseHubClientLib
 
         private async Task<object> RpcAsync(bool isOneWay, string interfaceName, string methodName, object[] args)
         {
-            if (Connection == null || _cts.Token.IsCancellationRequested || args == null)
+            if (!IsReady)
                 return null;
 
             RpcDtoRequest rpcArgs = new()
@@ -201,7 +201,7 @@ namespace SignalRBaseHubClientLib
 
         public async Task<object> InvokeAsync(string methodName, params object[] args)
         {
-            if (Connection == null || _cts.Token.IsCancellationRequested || args == null)
+            if (!IsReady)
                 return null;
 
             try
@@ -215,6 +215,8 @@ namespace SignalRBaseHubClientLib
                 throw new Exception(errMessage, e);
             }
         }
+
+        private bool IsReady => Connection != null && !_cts.Token.IsCancellationRequested;
 
         #endregion // Rpc, Invoke
 

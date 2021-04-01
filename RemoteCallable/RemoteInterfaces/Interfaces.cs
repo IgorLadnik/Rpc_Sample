@@ -4,6 +4,7 @@
     {
         RetOuter[] Foo(string name, Arg1[] arg1s);
         string Echo(string text);
+        int Simple();
     }
 
     public interface IRemoteCall2

@@ -55,6 +55,8 @@ namespace SignalRClient
                 {
                     #region Rpc
 
+                    var result42 = await hubClient.RpcAsync("IRemoteCall1", "Simple");
+
                     var args1 = new Arg1[]
                         {
                             new Arg1 { Id = "0", Arg2Props = new() { new() { Id = "0.0" }, new() { Id = "0.1" } } },
