@@ -48,8 +48,8 @@ namespace SignalRClient
 
             var args1 = new Arg1[]
                 {
-                            new Arg1 { Id = "0", Arg2Props = new() { new() { Id = "0.0" }, new() { Id = "0.1" } } },
-                            new Arg1 { Id = "1", Arg2Props = new() { new() { Id = "1.0" }, new() { Id = "1.1" } } }
+                    new Arg1 { Id = "0", Arg2Props = new() { new() { Id = "0.0" }, new() { Id = "0.1" } } },
+                    new Arg1 { Id = "1", Arg2Props = new() { new() { Id = "1.0" }, new() { Id = "1.1" } } }
                 };
 
             _ = Task.Run(async () =>
@@ -75,6 +75,10 @@ namespace SignalRClient
 
                     var result1 = (RetOuter[])await task1;
                     var result2 = (int)await task2;
+
+                    //TEST
+                    if (result1 == null || result1.Length != 2 || result1[1].Inners[3].Id != "1_11")
+                        throw new Exception("TEST failes - wrong aruments");
 
                     var durationTicksFoo1 = await TimeWatch(hubClient.RpcAsync, "IRemoteCall1", "Foo", "theName", args1);
                     var durationTicksFoo2 = await TimeWatch(hubClient.RpcAsync, "IRemoteCall2", "Foo", "theName", args1);

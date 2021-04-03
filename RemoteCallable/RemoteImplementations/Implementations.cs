@@ -12,6 +12,16 @@ namespace RemoteImplementations
 
         public RetOuter[] Foo(string name, Arg1[] arg1s)
         {
+            var args1 = new Arg1[]
+                {
+                    new Arg1 { Id = "0", Arg2Props = new() { new() { Id = "0.0" }, new() { Id = "0.1" } } },
+                    new Arg1 { Id = "1", Arg2Props = new() { new() { Id = "1.0" }, new() { Id = "1.1" } } }
+                };
+
+            //TEST
+            if (arg1s == null || arg1s.Length != 2 || arg1s[1].Id != "1" || arg1s[1].Id != "1" || arg1s[1].Arg2Props[1].Id != "1.1")
+                throw new Exception("TEST failes - wrong aruments");
+
             _logger?.LogDebug("*** RemoteCall1.Foo()");
             return new RetOuter[] 
                 {
