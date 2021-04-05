@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace RemoteInterfaces
 {
@@ -21,5 +22,11 @@ namespace RemoteInterfaces
     public class RetInner
     {
         public string Id { get; set; }
+    }
+
+    public class Ret3
+    {
+        public Guid Id { get; set; }
+        public int Param { get; set; }
     }
 }

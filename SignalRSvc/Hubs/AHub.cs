@@ -21,6 +21,7 @@ namespace SignalRSvc.Hubs
         {
             RegisterPerCall<IRemoteCall1, RemoteCall1>();
             RegisterPerSession<IRemoteCall2, RemoteCall2>();
+            RegisterSingleton<IRemoteCall3>(new RemoteCall3(5));
         }
 
         public AHub(ILoggerFactory loggerFactory) 

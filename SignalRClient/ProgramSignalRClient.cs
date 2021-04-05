@@ -35,6 +35,7 @@ namespace SignalRClient
             using var hubClient = await new HubClient(url, loggerFactory)
                     .RegisterInterface<IRemoteCall1>()
                     .RegisterInterface<IRemoteCall2>()
+                    .RegisterInterface<IRemoteCall3>()
                     .StartConnectionAsync(retryIntervalMs: 1000, numOfAttempts: 15);
 
             #region Streaming
@@ -61,6 +62,13 @@ namespace SignalRClient
                 {
                     #region Rpc
 
+                    var ret3_1 = (Ret3)await hubClient.RpcAsync("IRemoteCall3", "GetIdAndParam");
+                    var ret3_2 = (Ret3)await hubClient.RpcAsync("IRemoteCall3", "GetIdAndParam");
+
+                    //TEST
+                    if (ret3_1.Id != ret3_2.Id || ret3_1.Param != ret3_2.Param)
+                        throw new Exception("TEST failes - wrong Ret3");
+
                     var result42 = await hubClient.RpcAsync("IRemoteCall1", "Simple");
 
                     var task1 = hubClient.RpcAsync("IRemoteCall1", "Foo", "theName", args1);
@@ -78,7 +86,7 @@ namespace SignalRClient
 
                     //TEST
                     if (result1 == null || result1.Length != 2 || result1[1].Inners[3].Id != "1_11")
-                        throw new Exception("TEST failes - wrong aruments");
+                        throw new Exception("TEST failes - wrong arguments");
 
                     var durationTicksFoo1 = await TimeWatch(hubClient.RpcAsync, "IRemoteCall1", "Foo", "theName", args1);
                     var durationTicksFoo2 = await TimeWatch(hubClient.RpcAsync, "IRemoteCall2", "Foo", "theName", args1);
