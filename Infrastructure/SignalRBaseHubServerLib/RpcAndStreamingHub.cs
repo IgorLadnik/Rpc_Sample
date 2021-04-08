@@ -18,16 +18,16 @@ namespace SignalRBaseHubServerLib
     {
         #region Inner Descriptor classes
 
-        class Descriptor
+        class InterfaceDescriptor
         {
             public Type type;
             public object ob;
             public bool isPerSession = false;
-            public ConcurrentDictionary<string, PerSessionDescriptor> dctSession;
+            public ConcurrentDictionary<string, SessionDescriptor> dctSession;
             public Dictionary<string, Type> dctType;
         }
 
-        class PerSessionDescriptor
+        class SessionDescriptor
         {
             public object ob;
 
@@ -48,10 +48,10 @@ namespace SignalRBaseHubServerLib
 
         private int _isValid = 0;
 
-        private readonly static Dictionary<string, Descriptor> _dctInterface = new() 
+        private readonly static Dictionary<string, InterfaceDescriptor> _dctInterface = new() 
         { 
             { 
-                "_", new Descriptor 
+                "_", new InterfaceDescriptor 
                 { 
                     dctType = new() 
                     {
@@ -123,7 +123,7 @@ namespace SignalRBaseHubServerLib
 
                         foreach (var clientId in dict.Keys.ToArray())
                             if (now - new DateTime(dict[clientId].lastActivationInTicks) > sessionLifeTime)
-                                dict.Remove(clientId, out PerSessionDescriptor psd);
+                                dict.Remove(clientId, out SessionDescriptor psd);
                     }
                 },
                 null, TimeSpan.Zero, TimeSpan.FromMinutes(sessionLifeTimeInMin));
@@ -148,7 +148,7 @@ namespace SignalRBaseHubServerLib
 
         private static object[] GetMethodArguments(RpcDtoRequest arg)
         {
-            if (!_dctInterface.TryGetValue(arg.InterfaceName, out Descriptor descriptor))
+            if (!_dctInterface.TryGetValue(arg.InterfaceName, out InterfaceDescriptor descriptor))
                 return null;
 
             List<object> methodParams = new();
@@ -171,7 +171,7 @@ namespace SignalRBaseHubServerLib
 
         private object Resolve(string interafceName, string clientId = null)
         {
-            if (!_dctInterface.TryGetValue(interafceName, out Descriptor descriptor))
+            if (!_dctInterface.TryGetValue(interafceName, out InterfaceDescriptor descriptor))
                 return null;
 
             if (descriptor.ob != null)
@@ -188,7 +188,7 @@ namespace SignalRBaseHubServerLib
                 if (descriptor.dctSession == null)
                     descriptor.dctSession = new();
 
-                if (descriptor.dctSession.TryGetValue(clientId, out PerSessionDescriptor perSessionDescriptor))
+                if (descriptor.dctSession.TryGetValue(clientId, out SessionDescriptor perSessionDescriptor))
                 {
                     perSessionDescriptor.lastActivationInTicks = DateTime.UtcNow.Ticks;
                     return perSessionDescriptor.ob;
@@ -293,7 +293,7 @@ namespace SignalRBaseHubServerLib
             foreach (var k in _dctInterface.Keys)
             {
                 var descriptor = _dctInterface[k];
-                if (descriptor.isPerSession && descriptor.dctSession != null && descriptor.dctSession.TryRemove(clientId, out PerSessionDescriptor psd))
+                if (descriptor.isPerSession && descriptor.dctSession != null && descriptor.dctSession.TryRemove(clientId, out SessionDescriptor psd))
                 {
                     interfacesCount++;
                     sb.Append($"'{k}', ");
