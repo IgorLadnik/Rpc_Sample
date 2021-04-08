@@ -5,7 +5,7 @@ using System.Threading.Channels;
 
 namespace SignalRBaseHubServerLib
 {
-    internal static class ObservableEx
+    static class ObservableEx
     {
         internal static ChannelReader<T> AsChannelReader<T>(this IObservable<T> observable, int? maxBufferSize = null)
         {

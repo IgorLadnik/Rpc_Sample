@@ -8,9 +8,6 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Logging;
 using DtoLib;
-using System.Security.Cryptography.X509Certificates;
-using System.IO;
-using Microsoft.AspNetCore.Http.Connections.Client;
 using System.Net.Http;
 
 namespace SignalRBaseHubClientLib
@@ -177,14 +174,14 @@ namespace SignalRBaseHubClientLib
                 return null;
 
             RpcDtoRequest rpcArgs = new()
-            {
-                ClientId = ClientId,
-                Id = $"{Guid.NewGuid()}",
-                Status = DtoStatus.Created,
-                InterfaceName = interfaceName,
-                MethodName = methodName,
-                Args = args?.Select(a => new DtoData { TypeName = a.GetType().FullName, Data = a })?.ToArray()
-            };
+                {
+                    ClientId = ClientId,
+                    Id = $"{Guid.NewGuid()}",
+                    Status = DtoStatus.Created,
+                    InterfaceName = interfaceName,
+                    MethodName = methodName,
+                    Args = args?.Select(a => new DtoData { TypeName = a.GetType().FullName, Data = a })?.ToArray()
+                };
 
             try
             {
