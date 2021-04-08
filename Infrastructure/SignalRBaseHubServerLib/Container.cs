@@ -8,9 +8,9 @@ using DtoLib;
 
 namespace SignalRBaseHubServerLib
 {
-    static class Container
+    class Container
     {
-        internal static Dictionary<string, BaseInterfaceDescriptor> DctInterface { get; } = new()
+        internal Dictionary<string, BaseInterfaceDescriptor> DctInterface { get; } = new()
         {
             {
                 "_",
@@ -24,22 +24,26 @@ namespace SignalRBaseHubServerLib
             }
         };
 
-        internal static ILoggerFactory LoggerFactory { private get; set; }
-        internal static ILogger Logger { private get; set; }
-        private static Timer _timer;
+        private ILoggerFactory _loggerFactory;
+        private ILogger _logger;
+        private Timer _timer;
 
-        internal static void SetLogger(ILoggerFactory loggerFactory, ILogger logger) 
+        #region SetLogger
+
+        internal void SetLogger(ILoggerFactory loggerFactory)
         {
-            if (Logger == null) 
+            if (_logger == null)
             {
-                LoggerFactory = loggerFactory;
-                Logger = logger;
+                _loggerFactory = loggerFactory;
+                _logger = loggerFactory.CreateLogger<Container>();
             }
         }
 
+        #endregion // SetLogger
+
         #region Register
 
-        internal static void RegisterSingleton<TInterface>(TInterface ob)
+        internal void RegisterSingleton<TInterface>(TInterface ob)
         {
             var @interface = typeof(TInterface);
             DctInterface[@interface.Name] = new InterfaceDescriptorSingleton
@@ -50,7 +54,7 @@ namespace SignalRBaseHubServerLib
             };
         }
 
-        internal static void Register(Type @interface, Type implType, InstanceType instanceType, int sessionLifeTimeInMin = -1)
+        internal void Register(Type @interface, Type implType, InstanceType instanceType, int sessionLifeTimeInMin = -1)
         {
             var isPerSession = instanceType == InstanceType.PerSession;
             DctInterface[@interface.Name] = BaseInterfaceDescriptor.InterfaceDescriptorFactory(implType, instanceType, GetTypeDictionary(@interface));
@@ -88,7 +92,7 @@ namespace SignalRBaseHubServerLib
             return dctType;
         }
 
-        internal static object[] GetMethodArguments(RpcDtoRequest arg)
+        internal object[] GetMethodArguments(RpcDtoRequest arg)
         {
             if (!DctInterface.TryGetValue(arg.InterfaceName, out BaseInterfaceDescriptor descriptor))
                 return null;
@@ -111,7 +115,7 @@ namespace SignalRBaseHubServerLib
 
         #region Resolve, CreateInstance
 
-        internal static object Resolve(string interafceName, string clientId = null)
+        internal object Resolve(string interafceName, string clientId = null)
         {
             if (!DctInterface.TryGetValue(interafceName, out BaseInterfaceDescriptor descriptor))
                 return null;
@@ -149,14 +153,14 @@ namespace SignalRBaseHubServerLib
             return null;
         }
 
-        private static object CreateInstanceWithLoggerIfSupported(Type type) =>
+        private object CreateInstanceWithLoggerIfSupported(Type type) =>
             AssignLoggerIfSupported(Activator.CreateInstance(type));
 
-        private static object AssignLoggerIfSupported(object ob)
+        private object AssignLoggerIfSupported(object ob)
         {
             var log = ob as ILog;
             if (log != null)
-                log.LoggerFactory = LoggerFactory;
+                log.LoggerFactory = _loggerFactory;
             return ob;
         }
 

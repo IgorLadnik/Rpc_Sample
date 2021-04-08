@@ -22,9 +22,14 @@ namespace SignalRBaseHubServerLib
         protected readonly ILogger _logger;
         private readonly ILoggerFactory _loggerFactory;
 
+        private static readonly Container _container;
+
         #endregion // Vars
 
         #region Ctor
+
+        static RpcAndStreamingHub() => 
+            _container = new();
 
         protected RpcAndStreamingHub(ILoggerFactory loggerFactory, StreamingDataProvider<T> streamingDataProvider)
         {
@@ -33,7 +38,7 @@ namespace SignalRBaseHubServerLib
             IsValid = true;
             streamingDataProvider.Add(this);
             _streamingDataProvider = streamingDataProvider;
-            Container.SetLogger(_loggerFactory, _logger);
+            _container.SetLogger(loggerFactory);
         }
 
         #endregion // Ctor
@@ -41,13 +46,13 @@ namespace SignalRBaseHubServerLib
         #region Register
 
         public static void RegisterSingleton<TInterface>(TInterface ob) =>
-            Container.RegisterSingleton(ob);
+            _container.RegisterSingleton(ob);
 
         public static void RegisterPerCall<TInterface, TImpl>() where TImpl : TInterface, new() =>
-            Container.Register(typeof(TInterface), typeof(TImpl), InstanceType.PerCall);
+            _container.Register(typeof(TInterface), typeof(TImpl), InstanceType.PerCall);
 
         public static void RegisterPerSession<TInterface, TImpl>(int sessionLifeTimeInMin = -1) where TImpl : TInterface, new() =>
-            Container.Register(typeof(TInterface), typeof(TImpl), InstanceType.PerSession, sessionLifeTimeInMin);
+            _container.Register(typeof(TInterface), typeof(TImpl), InstanceType.PerSession, sessionLifeTimeInMin);
 
         #endregion // Register
 
@@ -59,11 +64,11 @@ namespace SignalRBaseHubServerLib
 
         private RpcDtoResponse Rpc(RpcDtoRequest arg, bool isOneWay)
         {
-            if (!Container.DctInterface.ContainsKey(arg.InterfaceName))
+            if (!_container.DctInterface.ContainsKey(arg.InterfaceName))
                 throw new Exception($"Interface '{arg.InterfaceName}' is not regidtered");
 
-            var methodArgs = Container.GetMethodArguments(arg);
-            var localOb = Container.Resolve(arg.InterfaceName, arg.ClientId);
+            var methodArgs = _container.GetMethodArguments(arg);
+            var localOb = _container.Resolve(arg.InterfaceName, arg.ClientId);
 
             IDirectCall directCall = null;
             if (localOb == null)
@@ -122,9 +127,9 @@ namespace SignalRBaseHubServerLib
         {
             var interfacesCount = 0;
             StringBuilder sb = new();
-            foreach (var k in Container.DctInterface.Keys)
+            foreach (var k in _container.DctInterface.Keys)
             {
-                var descriptor = Container.DctInterface[k];
+                var descriptor = _container.DctInterface[k];
                 if (descriptor.instanceType == InstanceType.PerSession)
                 {
                     var psd = (InterfaceDescriptorPerSession)descriptor;
