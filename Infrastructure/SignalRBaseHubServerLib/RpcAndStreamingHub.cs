@@ -16,31 +16,6 @@ namespace SignalRBaseHubServerLib
 {
     public class RpcAndStreamingHub<T> : Hub, ISetEvent
     {
-        #region Inner Descriptor classes
-
-        class InterfaceDescriptor
-        {
-            public Type type;
-            public object ob;
-            public bool isPerSession = false;
-            public ConcurrentDictionary<string, SessionDescriptor> dctSession;
-            public Dictionary<string, Type> dctType;
-        }
-
-        class SessionDescriptor
-        {
-            public object ob;
-
-            private long _lastActivationInTicks;
-            public long lastActivationInTicks
-            {
-                get => Interlocked.Read(ref _lastActivationInTicks);
-                set => Interlocked.Exchange(ref _lastActivationInTicks, value);
-            }
-        }
-
-        #endregion // Inner Descriptor classes
-
         #region Vars
 
         protected readonly IStreamingDataProvider<T> _streamingDataProvider;
@@ -48,10 +23,10 @@ namespace SignalRBaseHubServerLib
 
         private int _isValid = 0;
 
-        private readonly static Dictionary<string, InterfaceDescriptor> _dctInterface = new() 
+        private readonly static Dictionary<string, BaseInterfaceDescriptor> _dctInterface = new() 
         { 
             { 
-                "_", new InterfaceDescriptor 
+                "_", new BaseInterfaceDescriptor 
                 { 
                     dctType = new() 
                     {
@@ -73,7 +48,7 @@ namespace SignalRBaseHubServerLib
         protected RpcAndStreamingHub(ILoggerFactory loggerFactory, StreamingDataProvider<T> streamingDataProvider)
         {
             _loggerFactory = loggerFactory;
-            _logger = loggerFactory.CreateLogger<RpcAndStreamingHub<T>>();
+            _logger = loggerFactory.CreateLogger<RpcAndStreamingHub<T>>();           
             IsValid = true;
             streamingDataProvider.Add(this);
             _streamingDataProvider = streamingDataProvider;
@@ -86,50 +61,42 @@ namespace SignalRBaseHubServerLib
         public static void RegisterSingleton<TInterface>(TInterface ob) 
         {
             var @interface = typeof(TInterface); 
-            _dctInterface[@interface.Name] = new()
-            {
-                ob = ob,
-                isPerSession = false,
-                dctType = GetTypeDictionary(@interface),
-            };
+            _dctInterface[@interface.Name] = new InterfaceDescriptorSingleton
+                {
+                    ob = ob,
+                    instanceType = InstanceType.Singleton,
+                    dctType = GetTypeDictionary(@interface),
+                };
         }
 
         public static void RegisterPerCall<TInterface, TImpl>() where TImpl : TInterface, new() =>
-            Register(typeof(TInterface), typeof(TImpl));
+            Register(typeof(TInterface), typeof(TImpl), InstanceType.PerCall);
 
         public static void RegisterPerSession<TInterface, TImpl>(int sessionLifeTimeInMin = -1) where TImpl : TInterface, new() =>
-            Register(typeof(TInterface), typeof(TImpl), true, sessionLifeTimeInMin);
+            Register(typeof(TInterface), typeof(TImpl), InstanceType.PerSession, sessionLifeTimeInMin);
 
-        private static void Register(Type @interface, Type impl, bool isPerSession = false, int sessionLifeTimeInMin = -1)
+        private static void Register(Type @interface, Type implType, InstanceType instanceType, int sessionLifeTimeInMin = -1)
         {
-            //_logger.LogInformation($"About to register interface '{@interface.Name}' with type '{impl.Name}', isPerSession = {isPerSession}, sessionLifeTimeInMin = {sessionLifeTimeInMin}");
-            _dctInterface[@interface.Name] = new()
-            {
-                type = impl,
-                isPerSession = isPerSession,
-                dctType = GetTypeDictionary(@interface),
-            };
+            var isPerSession = instanceType == InstanceType.PerSession;           
+            _dctInterface[@interface.Name] = BaseInterfaceDescriptor.InterfaceDescriptorFactory(implType, instanceType, GetTypeDictionary(@interface));
 
-            if (isPerSession && sessionLifeTimeInMin > 0 && _timer == null)
+            if (instanceType == InstanceType.PerSession && sessionLifeTimeInMin > 0 && _timer == null)
             {
                 var sessionLifeTime = TimeSpan.FromMinutes(sessionLifeTimeInMin);
                 _timer = new(_ =>
                 {
                     var now = DateTime.UtcNow;
-                    foreach (var dict in _dctInterface.Values?.Where(d => d.isPerSession)?.Select(d => d.dctSession))
+                    foreach (var cdct in _dctInterface.Values?
+                                .Where(d => d.instanceType == InstanceType.PerSession)?
+                                .Select(d => ((InterfaceDescriptorPerSession)d).cdctSession))
                     {
-                        if (dict == null || dict.Count == 0)
-                            continue;
-
-                        foreach (var clientId in dict.Keys.ToArray())
-                            if (now - new DateTime(dict[clientId].lastActivationInTicks) > sessionLifeTime)
-                                dict.Remove(clientId, out SessionDescriptor psd);
+                        foreach (var clientId in cdct?.Keys?.ToArray())
+                            if (now - new DateTime(cdct[clientId].lastActivationInTicks) > sessionLifeTime)
+                                cdct.Remove(clientId, out SessionDescriptor psd);
                     }
                 },
                 null, TimeSpan.Zero, TimeSpan.FromMinutes(sessionLifeTimeInMin));
             }
-
-            //_logger.LogInformation($"Registered interface '{@interface.Name}' with type '{impl.Name}', isPerSession = {isPerSession}, sessionLifeTimeInMin = {sessionLifeTimeInMin}");
         }
 
         #endregion // Register
@@ -148,7 +115,7 @@ namespace SignalRBaseHubServerLib
 
         private static object[] GetMethodArguments(RpcDtoRequest arg)
         {
-            if (!_dctInterface.TryGetValue(arg.InterfaceName, out InterfaceDescriptor descriptor))
+            if (!_dctInterface.TryGetValue(arg.InterfaceName, out BaseInterfaceDescriptor descriptor))
                 return null;
 
             List<object> methodParams = new();
@@ -171,36 +138,37 @@ namespace SignalRBaseHubServerLib
 
         private object Resolve(string interafceName, string clientId = null)
         {
-            if (!_dctInterface.TryGetValue(interafceName, out InterfaceDescriptor descriptor))
+            if (!_dctInterface.TryGetValue(interafceName, out BaseInterfaceDescriptor descriptor))
                 return null;
 
-            if (descriptor.ob != null)
+            if (descriptor.instanceType == InstanceType.Singleton)
                 // Singleton
-                return descriptor.ob;
+                return ((InterfaceDescriptorSingleton)descriptor).ob;
 
             if (descriptor.type != null)
             {
-                if (!descriptor.isPerSession || string.IsNullOrEmpty(clientId))
+                if (descriptor.instanceType == InstanceType.PerCall)
                     // Per Call
                     return CreateInstanceWithLoggerIfSupported(descriptor.type);
 
-                // Per Session
-                if (descriptor.dctSession == null)
-                    descriptor.dctSession = new();
-
-                if (descriptor.dctSession.TryGetValue(clientId, out SessionDescriptor perSessionDescriptor))
+                if (descriptor.instanceType == InstanceType.PerSession)
                 {
-                    perSessionDescriptor.lastActivationInTicks = DateTime.UtcNow.Ticks;
-                    return perSessionDescriptor.ob;
+                    // Per Session
+                    var psd = (InterfaceDescriptorPerSession)descriptor;
+                    if (psd.cdctSession.TryGetValue(clientId, out SessionDescriptor sd))
+                    {
+                        sd.lastActivationInTicks = DateTime.UtcNow.Ticks;
+                        return sd.ob;
+                    }
+
+                    psd.cdctSession[clientId] = sd = new()
+                        {
+                            ob = CreateInstanceWithLoggerIfSupported(psd.type),
+                            lastActivationInTicks = DateTime.UtcNow.Ticks,
+                        };
+
+                    return sd.ob;
                 }
-
-                descriptor.dctSession[clientId] = perSessionDescriptor = new()
-                {
-                    ob = CreateInstanceWithLoggerIfSupported(descriptor.type),
-                    lastActivationInTicks = DateTime.UtcNow.Ticks,
-                };
-
-                return perSessionDescriptor.ob;
             }
 
             return null;
@@ -293,10 +261,14 @@ namespace SignalRBaseHubServerLib
             foreach (var k in _dctInterface.Keys)
             {
                 var descriptor = _dctInterface[k];
-                if (descriptor.isPerSession && descriptor.dctSession != null && descriptor.dctSession.TryRemove(clientId, out SessionDescriptor psd))
+                if (descriptor.instanceType == InstanceType.PerSession)
                 {
-                    interfacesCount++;
-                    sb.Append($"'{k}', ");
+                    var psd = (InterfaceDescriptorPerSession)descriptor;
+                    if (psd.cdctSession != null && psd.cdctSession.TryRemove(clientId, out SessionDescriptor sd))
+                    {
+                        interfacesCount++;
+                        sb.Append($"'{k}', ");
+                    }
                 }
             }
 
