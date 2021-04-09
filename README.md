@@ -53,6 +53,7 @@ public class AHub : RpcAndStreamingHub<Message>
 }
 ```
 </p>
+
 #### Client
 <p>
 In the Client side instance of <i>HubClient</i> class is created and its methods <i>RegisterInterface&lt;IInterface&gt;</i> 
