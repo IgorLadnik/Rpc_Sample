@@ -48,6 +48,7 @@ namespace SignalRSvc.Hubs
                 sbData.Append("No data available");
             }
 
+            // Send message to all clients
             await Clients.All.SendAsync("ReceiveMessage", sbClients.ToString(), sbData.ToString());
 
             return args;
