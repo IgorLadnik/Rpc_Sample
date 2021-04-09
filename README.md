@@ -65,6 +65,13 @@ using var hubClient = await new HubClient(url, loggerFactory)
 	.StartConnectionAsync(retryIntervalMs: 1000, numOfAttempts: 15);
 ```
 </p>
+<p>
+Then remote call is carried out as following:
+
+```
+var ret3 = (Ret3)await hubClient.RpcAsync("IRemoteCall3", "GetIdAndParam");
+```
+</p>
 
 ## 2. RPC with Asynchronous Response
 </p>
