@@ -28,6 +28,8 @@ One way call ("fire-and-forget") is also available with method <i>RpcOneWay()</i
 </p>
 
 ### Usage
+
+#### Server
 <p>
 In the Server side create a hub class derived from <i>RpcAndStreamingHub&lt;Message&gt;</i> with a static constructor. 
 The place calls for static regisrtratiopn methods into the static constructor, for example:
@@ -51,6 +53,7 @@ public class AHub : RpcAndStreamingHub<Message>
 }
 ```
 </p>
+#### Client
 <p>
 In the Client side instance of <i>HubClient</i> class is created and its methods <i>RegisterInterface&lt;IInterface&gt;</i> 
 are called concluded with <i>async</i> method <i>StartConnectionAsync()</i>:
@@ -80,6 +83,8 @@ like in RPC case.
 </p>
 
 ### Usage
+
+#### Server
 <p>
 The hub has a method to be called: 
 
@@ -120,6 +125,8 @@ public class AHub : RpcAndStreamingHub<Message>
 }
 ```
 </p>
+
+#### Client
 <p>
 Client should first to provide handler for notification from Server:
 
