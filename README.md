@@ -58,10 +58,11 @@ are called:
 
 ```
 // Create hub client and connect to server
-using var hubClient = new HubClient(url, loggerFactory)
-        .RegisterInterface<IRemoteCall1>()
-        .RegisterInterface<IRemoteCall2>()
-        .RegisterInterface<IRemoteCall3>();
+using var hubClient = await new HubClient(url, loggerFactory)
+	.RegisterInterface<IRemoteCall1>()
+	.RegisterInterface<IRemoteCall2>()
+	.RegisterInterface<IRemoteCall3>()
+	.StartConnectionAsync(retryIntervalMs: 1000, numOfAttempts: 15);
 ```
 </p>
 
