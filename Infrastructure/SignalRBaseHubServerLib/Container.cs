@@ -18,7 +18,7 @@ namespace SignalRBaseHubServerLib
                 "_",
                 new BaseInterfaceDescriptor
                 {
-                    dctType = new()
+                    DctType = new()
                     {
                         { "System.String", typeof(string) }
                     }
@@ -53,8 +53,9 @@ namespace SignalRBaseHubServerLib
             DctInterface[@interface.Name] = new InterfaceDescriptorSingleton
             {
                 ob = ob,
-                instanceType = Instantiation.Singleton,
-                dctType = GetTypeDictionary(@interface),
+                ImplType = ob.GetType(),
+                InstantiationKind = Instantiation.Singleton,
+                DctType = GetTypeDictionary(@interface),
             };
         }
 
@@ -106,7 +107,7 @@ namespace SignalRBaseHubServerLib
             {
                 var je = (JsonElement)dtoData.Data;
 
-                if (!descriptor.dctType.TryGetValue(dtoData.TypeName, out Type type))
+                if (!descriptor.DctType.TryGetValue(dtoData.TypeName, out Type type))
                     throw new Exception($"Type '{dtoData.TypeName}' is not registered");
 
                 methodParams.Add(JsonSerializer.Deserialize(je.GetRawText(), type, new() { PropertyNameCaseInsensitive = true }));
@@ -128,11 +129,11 @@ namespace SignalRBaseHubServerLib
                 // Singleton
                 return (descriptor as InterfaceDescriptorSingleton).ob;
 
-            if (descriptor.type != null)
+            if (descriptor.ImplType != null)
             {
                 if (descriptor.IsPerCall)
                     // Per Call
-                    return CreateInstanceWithLoggerIfSupported(descriptor.type);
+                    return CreateInstanceWithLoggerIfSupported(descriptor.ImplType);
 
                 if (descriptor.IsPerSession)
                 {
@@ -146,7 +147,7 @@ namespace SignalRBaseHubServerLib
 
                     psd.cdctSession[clientId] = sd = new()
                     {
-                        ob = CreateInstanceWithLoggerIfSupported(psd.type),
+                        ob = CreateInstanceWithLoggerIfSupported(psd.ImplType),
                         LastActivationInTicks = DateTime.UtcNow.Ticks,
                     };
 

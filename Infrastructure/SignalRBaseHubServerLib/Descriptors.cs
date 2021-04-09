@@ -15,9 +15,9 @@ namespace SignalRBaseHubServerLib
 
     class BaseInterfaceDescriptor
     {
-        public Type type;
-        public Instantiation instanceType = Instantiation.None;
-        public Dictionary<string, Type> dctType;
+        public Type ImplType { get; set; }
+        public Instantiation InstantiationKind { get; set; } = Instantiation.None;
+        public Dictionary<string, Type> DctType { get; set; }
 
         public static BaseInterfaceDescriptor InterfaceDescriptorFactory(
             Type implType, Instantiation instanceType, Dictionary<string, Type> dctType)
@@ -42,16 +42,16 @@ namespace SignalRBaseHubServerLib
                     break;
             }
 
-            interfaceDescriptor.type = implType;
-            interfaceDescriptor.instanceType = instanceType;
-            interfaceDescriptor.dctType = dctType;
+            interfaceDescriptor.ImplType = implType;
+            interfaceDescriptor.InstantiationKind = instanceType;
+            interfaceDescriptor.DctType = dctType;
 
             return interfaceDescriptor;
         }
 
-        public bool IsPerCall => instanceType == Instantiation.PerCall;
-        public bool IsPerSession => instanceType == Instantiation.PerSession;
-        public bool IsSingleton => instanceType == Instantiation.Singleton;
+        public bool IsPerCall => InstantiationKind == Instantiation.PerCall;
+        public bool IsPerSession => InstantiationKind == Instantiation.PerSession;
+        public bool IsSingleton => InstantiationKind == Instantiation.Singleton;
     }
 
     class InterfaceDescriptorSingleton : BaseInterfaceDescriptor
