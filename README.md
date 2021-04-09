@@ -54,7 +54,7 @@ public class AHub : RpcAndStreamingHub<Message>
 </p>
 <p>
 In the Client side insnce of <i>HubClient</i> class is created and its methods <i>RegisterInterface&lt;IInterface&gt;</i> 
-are called:
+are called concluded with <i>async</i> method <i>StartConnectionAsync()</i>:
 
 ```
 // Create hub client and connect to server
