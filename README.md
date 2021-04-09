@@ -64,6 +64,7 @@ using var hubClient = new HubClient(url, loggerFactory)
         .RegisterInterface<IRemoteCall3>();
 ```
 </p>
+
 ## 2. RPC with Asynchronous Response
 </p>
 <p>
