@@ -133,7 +133,7 @@ namespace SignalRBaseHubServerLib
                 if (descriptor.IsPerSession)
                 {
                     var psd = (InterfaceDescriptorPerSession)descriptor;
-                    if (psd.cdctSession != null && psd.cdctSession.TryRemove(clientId, out SessionDescriptor sd))
+                    if (psd.CdctSession != null && psd.CdctSession.TryRemove(clientId, out SessionDescriptor sd))
                     {
                         interfacesCount++;
                         sb.Append($"'{k}', ");

@@ -56,7 +56,7 @@ namespace SignalRBaseHubServerLib
 
     class InterfaceDescriptorSingleton : BaseInterfaceDescriptor
     {
-        public object ob;
+        public object Ob { get; set; }
     }
 
     class InterfaceDescriptorPerCall : BaseInterfaceDescriptor
@@ -65,7 +65,7 @@ namespace SignalRBaseHubServerLib
 
     class InterfaceDescriptorPerSession : BaseInterfaceDescriptor
     {
-        public ConcurrentDictionary<string, SessionDescriptor> cdctSession = new();
+        public ConcurrentDictionary<string, SessionDescriptor> CdctSession { get; } = new();
     }
 
     class SessionDescriptor
