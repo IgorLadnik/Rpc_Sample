@@ -27,7 +27,6 @@ Server supports Singleton, PerCall and PerSession instance models, similar to WC
 One way call ("fire-and-forget") is also available with method <i>RpcOneWay()</i>.
 </p>
 
-### Usage
 <p>
 In the Server side create a hub class derived from <i>RpcAndStreamingHub&lt;Message&gt;</i> with a static constructor. 
 The place calls for static regisrtratiopn methods into the static constructor, for example:
@@ -82,37 +81,37 @@ The hub has a method to be called:
 ```
 public class AHub : RpcAndStreamingHub<Message>
 {
-	public AHub(ILoggerFactory loggerFactory) 
-		: base(loggerFactory, MessageEventProvider.Instance)
-	{
-	}
+    public AHub(ILoggerFactory loggerFactory) 
+        : base(loggerFactory, MessageEventProvider.Instance)
+    {
+    }
 
-	public async Task<Message[]> ProcessMessage(Message[] args)
-	{
-		StringBuilder sbClients = new();
-		StringBuilder sbData = new();
+    public async Task<Message[]> ProcessMessage(Message[] args)
+    {
+        StringBuilder sbClients = new();
+        StringBuilder sbData = new();
 
-		if (args != null && args.Length > 0)
-		{
-			sbClients.Append("Clients: ");
-			foreach (var clientId in args.Select(dto => dto.ClientId).Distinct())
-				sbClients.Append($"{clientId} ");
+        if (args != null && args.Length > 0)
+        {
+            sbClients.Append("Clients: ");
+            foreach (var clientId in args.Select(dto => dto.ClientId).Distinct())
+                sbClients.Append($"{clientId} ");            
 
-			sbData.Append("--> Data: ");
-			foreach (var dto in args)
-				sbData.Append($"{dto.Data} ");
-		}
-		else
-		{
-			sbClients.Append("No clients");
-			sbData.Append("No data available");
-		}
+            sbData.Append("--> Data: ");
+            foreach (var dto in args)
+                sbData.Append($"{dto.Data} ");
+        }
+        else
+        {
+            sbClients.Append("No clients");
+            sbData.Append("No data available");
+        }
 
         // Send message to all clients
-		await Clients.All.SendAsync("ReceiveMessage", sbClients.ToString(), sbData.ToString());
+        await Clients.All.SendAsync("ReceiveMessage", sbClients.ToString(), sbData.ToString());
 
-		return args;
-	}
+        return args;
+    }
 }
 ```
 </p>
@@ -130,7 +129,7 @@ and then call remote method on Server with <i>InvokeAsync()</i>:
 ```
 // Client calls server's method ProcessMessage
 var jarr = (JArray)await hubClient.InvokeAsync("ProcessMessage",
-	new[] { new Message { ... },	new Message { ... }, });
+	new[] { new Message { ... }, new Message { ... }, });
 ```
 </p>
 
