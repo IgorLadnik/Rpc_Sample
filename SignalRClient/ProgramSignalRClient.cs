@@ -62,6 +62,8 @@ namespace SignalRClient
                 {
                     #region Rpc
 
+                    var str = await hubClient.RpcAsync("IRemoteCall1", "Echo", " some text");
+
                     var ret3_1 = (Ret3)await hubClient.RpcAsync("IRemoteCall3", "GetIdAndParam");
                     var ret3_2 = (Ret3)await hubClient.RpcAsync("IRemoteCall3", "GetIdAndParam");
 

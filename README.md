@@ -69,6 +69,7 @@ using var hubClient = await new HubClient(url, loggerFactory)
 Then remote call is carried out as following:
 
 ```
+var str = await hubClient.RpcAsync("IRemoteCall1", "Echo", " some text");
 var ret3 = (Ret3)await hubClient.RpcAsync("IRemoteCall3", "GetIdAndParam");
 ```
 </p>
