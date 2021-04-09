@@ -49,10 +49,10 @@ namespace SignalRBaseHubServerLib
             _container.RegisterSingleton(ob);
 
         public static void RegisterPerCall<TInterface, TImpl>() where TImpl : TInterface, new() =>
-            _container.Register(typeof(TInterface), typeof(TImpl), InstanceType.PerCall);
+            _container.Register(typeof(TInterface), typeof(TImpl), Instantiation.PerCall);
 
         public static void RegisterPerSession<TInterface, TImpl>(int sessionLifeTimeInMin = -1) where TImpl : TInterface, new() =>
-            _container.Register(typeof(TInterface), typeof(TImpl), InstanceType.PerSession, sessionLifeTimeInMin);
+            _container.Register(typeof(TInterface), typeof(TImpl), Instantiation.PerSession, sessionLifeTimeInMin);
 
         #endregion // Register
 
@@ -130,7 +130,7 @@ namespace SignalRBaseHubServerLib
             foreach (var k in _container.DctInterface.Keys)
             {
                 var descriptor = _container.DctInterface[k];
-                if (descriptor.instanceType == InstanceType.PerSession)
+                if (descriptor.IsPerSession)
                 {
                     var psd = (InterfaceDescriptorPerSession)descriptor;
                     if (psd.cdctSession != null && psd.cdctSession.TryRemove(clientId, out SessionDescriptor sd))

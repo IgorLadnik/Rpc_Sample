@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace SignalRBaseHubServerLib
 {
-    enum InstanceType
+    enum Instantiation
     {
         None = 0,
         Singleton,
@@ -16,28 +16,29 @@ namespace SignalRBaseHubServerLib
     class BaseInterfaceDescriptor
     {
         public Type type;
-        public InstanceType instanceType = InstanceType.None;
+        public Instantiation instanceType = Instantiation.None;
         public Dictionary<string, Type> dctType;
 
-        public static BaseInterfaceDescriptor InterfaceDescriptorFactory(Type implType, InstanceType instanceType, Dictionary<string, Type> dctType)
+        public static BaseInterfaceDescriptor InterfaceDescriptorFactory(
+            Type implType, Instantiation instanceType, Dictionary<string, Type> dctType)
         {
-            BaseInterfaceDescriptor interfaceDescriptor = null;
+            BaseInterfaceDescriptor interfaceDescriptor;
             switch (instanceType)
             {
-                case InstanceType.None:
-                    interfaceDescriptor = new BaseInterfaceDescriptor();
-                    break;
-
-                case InstanceType.Singleton:
+                case Instantiation.Singleton:
                     interfaceDescriptor = new InterfaceDescriptorSingleton();
                     break;
 
-                case InstanceType.PerCall:
+                case Instantiation.PerCall:
                     interfaceDescriptor = new InterfaceDescriptorPerCall();
                     break;
 
-                case InstanceType.PerSession:
+                case Instantiation.PerSession:
                     interfaceDescriptor = new InterfaceDescriptorPerSession();
+                    break;
+
+                default:
+                    interfaceDescriptor = new BaseInterfaceDescriptor();
                     break;
             }
 
@@ -47,6 +48,10 @@ namespace SignalRBaseHubServerLib
 
             return interfaceDescriptor;
         }
+
+        public bool IsPerCall => instanceType == Instantiation.PerCall;
+        public bool IsPerSession => instanceType == Instantiation.PerSession;
+        public bool IsSingleton => instanceType == Instantiation.Singleton;
     }
 
     class InterfaceDescriptorSingleton : BaseInterfaceDescriptor
@@ -68,7 +73,7 @@ namespace SignalRBaseHubServerLib
         public object ob;
 
         private long _lastActivationInTicks;
-        public long lastActivationInTicks
+        public long LastActivationInTicks
         {
             get => Interlocked.Read(ref _lastActivationInTicks);
             set => Interlocked.Exchange(ref _lastActivationInTicks, value);

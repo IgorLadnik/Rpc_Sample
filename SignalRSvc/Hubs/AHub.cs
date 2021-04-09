@@ -1,11 +1,9 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using System.Text;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using SignalRBaseHubServerLib;
-using DtoLib;
 using MessageProviderLib;
 using RemoteInterfaces;
 using RemoteImplementations;

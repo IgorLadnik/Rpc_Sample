@@ -10,6 +10,8 @@ namespace SignalRBaseHubServerLib
 {
     class Container
     {
+        #region Vars
+
         internal Dictionary<string, BaseInterfaceDescriptor> DctInterface { get; } = new()
         {
             {
@@ -27,6 +29,8 @@ namespace SignalRBaseHubServerLib
         private ILoggerFactory _loggerFactory;
         private ILogger _logger;
         private Timer _timer;
+
+        #endregion // Vars
 
         #region SetLogger
 
@@ -49,28 +53,28 @@ namespace SignalRBaseHubServerLib
             DctInterface[@interface.Name] = new InterfaceDescriptorSingleton
             {
                 ob = ob,
-                instanceType = InstanceType.Singleton,
+                instanceType = Instantiation.Singleton,
                 dctType = GetTypeDictionary(@interface),
             };
         }
 
-        internal void Register(Type @interface, Type implType, InstanceType instanceType, int sessionLifeTimeInMin = -1)
+        internal void Register(Type @interface, Type implType, Instantiation instanceType, int sessionLifeTimeInMin = -1)
         {
-            var isPerSession = instanceType == InstanceType.PerSession;
+            var isPerSession = instanceType == Instantiation.PerSession;
             DctInterface[@interface.Name] = BaseInterfaceDescriptor.InterfaceDescriptorFactory(implType, instanceType, GetTypeDictionary(@interface));
 
-            if (instanceType == InstanceType.PerSession && sessionLifeTimeInMin > 0 && _timer == null)
+            if (isPerSession && sessionLifeTimeInMin > 0 && _timer == null)
             {
                 var sessionLifeTime = TimeSpan.FromMinutes(sessionLifeTimeInMin);
                 _timer = new(_ =>
                 {
                     var now = DateTime.UtcNow;
                     foreach (var cdct in DctInterface.Values?
-                                .Where(d => d.instanceType == InstanceType.PerSession)?
-                                .Select(d => ((InterfaceDescriptorPerSession)d).cdctSession))
+                                .Where(d => d.IsPerSession)?
+                                .Select(d => (d as InterfaceDescriptorPerSession).cdctSession))
                     {
                         foreach (var clientId in cdct?.Keys?.ToArray())
-                            if (now - new DateTime(cdct[clientId].lastActivationInTicks) > sessionLifeTime)
+                            if (now - new DateTime(cdct[clientId].LastActivationInTicks) > sessionLifeTime)
                                 cdct.Remove(clientId, out SessionDescriptor psd);
                     }
                 },
@@ -120,30 +124,30 @@ namespace SignalRBaseHubServerLib
             if (!DctInterface.TryGetValue(interafceName, out BaseInterfaceDescriptor descriptor))
                 return null;
 
-            if (descriptor.instanceType == InstanceType.Singleton)
+            if (descriptor.IsSingleton)
                 // Singleton
-                return ((InterfaceDescriptorSingleton)descriptor).ob;
+                return (descriptor as InterfaceDescriptorSingleton).ob;
 
             if (descriptor.type != null)
             {
-                if (descriptor.instanceType == InstanceType.PerCall)
+                if (descriptor.IsPerCall)
                     // Per Call
                     return CreateInstanceWithLoggerIfSupported(descriptor.type);
 
-                if (descriptor.instanceType == InstanceType.PerSession)
+                if (descriptor.IsPerSession)
                 {
                     // Per Session
-                    var psd = (InterfaceDescriptorPerSession)descriptor;
+                    var psd = descriptor as InterfaceDescriptorPerSession;
                     if (psd.cdctSession.TryGetValue(clientId, out SessionDescriptor sd))
                     {
-                        sd.lastActivationInTicks = DateTime.UtcNow.Ticks;
+                        sd.LastActivationInTicks = DateTime.UtcNow.Ticks;
                         return sd.ob;
                     }
 
                     psd.cdctSession[clientId] = sd = new()
                     {
                         ob = CreateInstanceWithLoggerIfSupported(psd.type),
-                        lastActivationInTicks = DateTime.UtcNow.Ticks,
+                        LastActivationInTicks = DateTime.UtcNow.Ticks,
                     };
 
                     return sd.ob;
