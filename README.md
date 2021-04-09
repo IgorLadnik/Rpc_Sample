@@ -27,6 +27,7 @@ Server supports Singleton, PerCall and PerSession instance models, similar to WC
 One way call ("fire-and-forget") is also available with method <i>RpcOneWay()</i>.
 </p>
 
+### Usage
 <p>
 In the Server side create a hub class derived from <i>RpcAndStreamingHub&lt;Message&gt;</i> with a static constructor. 
 The place calls for static regisrtratiopn methods into the static constructor, for example:
@@ -76,6 +77,9 @@ var ret3 = (Ret3)await hubClient.RpcAsync("IRemoteCall3", "GetIdAndParam");
 <p>
 This feature requires in the Server side the same hub class derived from class <i>RpcAndStreamingHub&lt;Message&gt;</i>
 like in RPC case.
+</p>
+### Usage
+<p>
 The hub has a method to be called: 
 
 ```
