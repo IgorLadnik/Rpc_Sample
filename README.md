@@ -78,6 +78,7 @@ var ret3 = (Ret3)await hubClient.RpcAsync("IRemoteCall3", "GetIdAndParam");
 This feature requires in the Server side the same hub class derived from class <i>RpcAndStreamingHub&lt;Message&gt;</i>
 like in RPC case.
 </p>
+
 ### Usage
 <p>
 The hub has a method to be called: 
