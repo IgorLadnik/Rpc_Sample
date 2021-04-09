@@ -27,12 +27,47 @@ Broadcasting result to other clients may be implemented, if required.
 Server supports Singleton, PerCall and PerSession instance models, similar to WCF.
 One way call ("fire-and-forget") is also available with method <i>RpcOneWay()</i>.
 </p>
-<p>
 
+### Usage
+<p>
+In the Server side create a hub class derived from <i>RpcAndStreamingHub&lt;Message&gt;</i> with a static constructor. 
+The place calls for static regisrtratiopn methods into the static constructor, for example:
+
+```
+public class AHub : RpcAndStreamingHub<Message>
+{
+    static AHub() 
+    {
+        RegisterPerCall<IRemoteCall1, RemoteCall1>();
+        RegisterPerSession<IRemoteCall2, RemoteCall2>();
+        RegisterSingleton<IRemoteCall3>(new RemoteCall3(5));
+    }
+
+    public AHub(ILoggerFactory loggerFactory) 
+        : base(loggerFactory, MessageEventProvider.Instance)
+    {
+    }
+    
+    // ...
+}
+```
+</p>
+<p>
+In the Client side insnce of <i>HubClient</i> class is created and its methods <i>RegisterInterface&lt;IInterface&gt;</i> 
+are called:
+
+```
+// Create hub client and connect to server
+using var hubClient = new HubClient(url, loggerFactory)
+        .RegisterInterface<IRemoteCall1>()
+        .RegisterInterface<IRemoteCall2>()
+        .RegisterInterface<IRemoteCall3>();
+```
+</p>
 ## 2. RPC with Asynchronous Response
 </p>
 <p>
-This feature requires class derived from class <i>RpcAndStreamingHub&lt;Message&gt;</i> on 
+This feature requires a hub class derived from class <i>RpcAndStreamingHub&lt;Message&gt;</i> on 
 the server side with method to be called. Client method <i>InvokeAsync()</i> provides remote invokation.
 </p>
 <p>
