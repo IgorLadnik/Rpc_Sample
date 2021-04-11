@@ -1,5 +1,5 @@
-# Remote Procedure Call (RPC) and Streaming Sample in .NET 5 Including WCF Replacement
-Remote Procedure Call on .NET5
+# Remote Procedure Call (RPC) and Streaming in .NET 5 Including WCF Replacement
+Infrastructure and samples of Server and Client for RPC and Streaming in .NET 5.
 
 <p>
 Presented solution is based on <b>SignalR</b> library for inter-process communication. It uses WebSocket as its main transport type 
