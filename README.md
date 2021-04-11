@@ -1,4 +1,4 @@
-# Rpc_Sample
+# Remote Procedure Call (RPC) Sample in .NET 5 Including WCF Replacement
 Remote Procedure Call on .NET5
 
 <p>
