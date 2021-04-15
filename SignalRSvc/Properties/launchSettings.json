@@ -15,11 +15,12 @@
       }
     },
     "SignalRSvc": {
-      "commandName": "Project",
-      "commandLineArgs": "TLS",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+        "commandName": "Project",
+        "commandLineArgs": "TLS",
+        "applicationUrl": "http://localhost:15000;https://localhost:15001",
+        "environmentVariables": {
+            "ASPNETCORE_ENVIRONMENT": "Development"
+        }
     }
   }
 }

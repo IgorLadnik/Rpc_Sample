@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -8,7 +9,6 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Logging;
 using DtoLib;
-using System.Net.Http;
 
 namespace SignalRBaseHubClientLib
 {
@@ -82,20 +82,7 @@ namespace SignalRBaseHubClientLib
 
         public async Task<HubClient> StartConnectionAsync(int retryIntervalMs = 0, int numOfAttempts = 0)
         {
-            //var certificateFile = "certificate.crt";
-
-            // Load the certificate into an X509Certificate object.
-            //X509Certificate2 cert = null;
-            //try
-            //{
-            //    cert = new(certificateFile);
-            //}
-            //catch (Exception e)
-            //{
-            //}
-
             Connection = new HubConnectionBuilder().WithUrl(Url, options =>
-                //options.ClientCertificates = new(new X509Certificate[] { new X509Certificate2(certificateFile) })
                 options.HttpMessageHandlerFactory = (message) =>
                 {
                     if (message is HttpClientHandler clientHandler)
