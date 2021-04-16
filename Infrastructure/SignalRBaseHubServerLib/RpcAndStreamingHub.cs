@@ -20,7 +20,6 @@ namespace SignalRBaseHubServerLib
         private int _isValid = 0;
 
         protected readonly ILogger _logger;
-        private readonly ILoggerFactory _loggerFactory;
 
         private static readonly Container _container;
 
@@ -33,7 +32,6 @@ namespace SignalRBaseHubServerLib
 
         protected RpcAndStreamingHub(ILoggerFactory loggerFactory, StreamingDataProvider<T> streamingDataProvider)
         {
-            _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<RpcAndStreamingHub<T>>();           
             IsValid = true;
             streamingDataProvider.Add(this);

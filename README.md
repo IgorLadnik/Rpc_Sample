@@ -15,7 +15,13 @@ Solution provides the following features for inter-process communication in .NET
 </p>
 <p>
 
-## 1. Remote Procedure Call (RPC) Using Interface.
+## 1. Brief Solution Description
+<p>
+Librarry <i>SignalRBaseHubServerLib</i> provides infrastructure for server side, whereas <i>SignalRBaseHubClientLib</i> 
+contains base class <code>HubClient</code> for hub client. 
+</p>
+
+## 1. Remote Procedure Call (RPC) Using Interface
 <p>
 An interface is registered with client and server. 
 The server provides class implementing the interface. 
