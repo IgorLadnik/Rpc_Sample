@@ -7,7 +7,7 @@ namespace AsyncAutoResetEventLib
 {
     public class AsyncAutoResetEvent
     {
-        private readonly Queue<TaskCompletionSource<bool>> _waits = new();
+        private readonly Queue<TaskCompletionSource<bool>> _waits = new Queue<TaskCompletionSource<bool>>();
         private bool _signaled;
 
         public Task WaitAsync()
@@ -21,7 +21,7 @@ namespace AsyncAutoResetEventLib
                 }
                 else
                 {
-                    TaskCompletionSource<bool> tcs = new();
+                    var tcs = new TaskCompletionSource<bool>();
                     _waits.Enqueue(tcs);
                     return tcs.Task;
                 }

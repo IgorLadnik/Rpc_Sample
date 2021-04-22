@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using RemoteInterfaces;
 using SignalRBaseHubServerLib;
@@ -14,8 +15,8 @@ namespace RemoteImplementations
         {
             var args1 = new Arg1[]
                 {
-                    new Arg1 { Id = "0", Arg2Props = new() { new() { Id = "0.0" }, new() { Id = "0.1" } } },
-                    new Arg1 { Id = "1", Arg2Props = new() { new() { Id = "1.0" }, new() { Id = "1.1" } } }
+                    new Arg1 { Id = "0", Arg2Props = new List<Arg2> { new Arg2 { Id = "0.0" }, new Arg2 { Id = "0.1" } } },
+                    new Arg1 { Id = "1", Arg2Props = new List<Arg2> { new Arg2 { Id = "1.0" }, new Arg2 { Id = "1.1" } } }
                 };
 
             //TEST
@@ -29,16 +30,16 @@ namespace RemoteImplementations
                     {
                         Inners = new RetInner[]
                         {
-                            new() { Id = "0_00" }, new() { Id = "0_01" },
-                            new() { Id = "0_10" }, new() { Id = "0_11" }
+                            new RetInner { Id = "0_00" }, new RetInner { Id = "0_01" },
+                            new RetInner { Id = "0_10" }, new RetInner { Id = "0_11" }
                         }
                     },
                     new RetOuter
                     {
                         Inners = new RetInner[]
                         {
-                            new() { Id = "1_00" }, new() { Id = "1_01" },
-                            new() { Id = "1_10" }, new() { Id = "1_11" }
+                            new RetInner { Id = "1_00" }, new RetInner { Id = "1_01" },
+                            new RetInner { Id = "1_10" }, new RetInner { Id = "1_11" }
                         }
                     }
                 };

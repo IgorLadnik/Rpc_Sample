@@ -12,13 +12,13 @@ namespace SignalRBaseHubServerLib
     {
         #region Vars
 
-        internal Dictionary<string, BaseInterfaceDescriptor> DctInterface { get; } = new()
+        internal Dictionary<string, BaseInterfaceDescriptor> DctInterface { get; } = new Dictionary<string, BaseInterfaceDescriptor>()
         {
             {
                 "_",
                 new BaseInterfaceDescriptor
                 {
-                    DctType = new()
+                    DctType = new Dictionary<string, Type>()
                     {
                         { "System.String", typeof(string) }
                     }
@@ -67,7 +67,7 @@ namespace SignalRBaseHubServerLib
             if (isPerSession && sessionLifeTimeInMin > 0 && _timer == null)
             {
                 var sessionLifeTime = TimeSpan.FromMinutes(sessionLifeTimeInMin);
-                _timer = new(_ =>
+                _timer = new Timer(_ =>
                 {
                     var now = DateTime.UtcNow;
                     foreach (var cdct in DctInterface.Values?
@@ -76,7 +76,7 @@ namespace SignalRBaseHubServerLib
                     {
                         foreach (var clientId in cdct?.Keys?.ToArray())
                             if (now - new DateTime(cdct[clientId].LastActivationInTicks) > sessionLifeTime)
-                                cdct.Remove(clientId, out SessionDescriptor psd);
+                                cdct.TryRemove(clientId, out SessionDescriptor psd);
                     }
                 },
                 null, TimeSpan.Zero, TimeSpan.FromMinutes(sessionLifeTimeInMin));
@@ -89,7 +89,7 @@ namespace SignalRBaseHubServerLib
 
         private static Dictionary<string, Type> GetTypeDictionary(Type interfaceType)
         {
-            Dictionary<string, Type> dctType = new();
+            var dctType = new Dictionary<string, Type>();
             foreach (var mi in interfaceType.GetMethods())
                 foreach (var pi in mi.GetParameters())
                     dctType[pi.ParameterType.FullName] = pi.ParameterType;
@@ -102,7 +102,7 @@ namespace SignalRBaseHubServerLib
             if (!DctInterface.TryGetValue(arg.InterfaceName, out BaseInterfaceDescriptor descriptor))
                 return null;
 
-            List<object> methodParams = new();
+            var methodParams = new List<object>();
             foreach (var dtoData in arg?.Args)
             {
                 var je = (JsonElement)dtoData.Data;
@@ -110,7 +110,7 @@ namespace SignalRBaseHubServerLib
                 if (!descriptor.DctType.TryGetValue(dtoData.TypeName, out Type type))
                     throw new Exception($"Type '{dtoData.TypeName}' is not registered");
 
-                methodParams.Add(JsonSerializer.Deserialize(je.GetRawText(), type, new() { PropertyNameCaseInsensitive = true }));
+                methodParams.Add(JsonSerializer.Deserialize(je.GetRawText(), type, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }));
             }
 
             return methodParams.ToArray();
@@ -145,7 +145,7 @@ namespace SignalRBaseHubServerLib
                         return sd.ob;
                     }
 
-                    psd.CdctSession[clientId] = sd = new()
+                    psd.CdctSession[clientId] = sd = new SessionDescriptor()
                     {
                         ob = CreateInstanceWithLoggerIfSupported(psd.ImplType),
                         LastActivationInTicks = DateTime.UtcNow.Ticks,

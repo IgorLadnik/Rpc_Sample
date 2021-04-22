@@ -15,7 +15,7 @@ namespace SignalRBaseHubServerLib
         #region Vars
 
         protected readonly IStreamingDataProvider<T> _streamingDataProvider;
-        private readonly AsyncAutoResetEvent _aev = new();
+        private readonly AsyncAutoResetEvent _aev = new AsyncAutoResetEvent();
 
         private int _isValid = 0;
 
@@ -28,7 +28,7 @@ namespace SignalRBaseHubServerLib
         #region Ctor
 
         static RpcAndStreamingHub() => 
-            _container = new();
+            _container = new Container();
 
         protected RpcAndStreamingHub(ILoggerFactory loggerFactory, StreamingDataProvider<T> streamingDataProvider)
         {
@@ -105,7 +105,7 @@ namespace SignalRBaseHubServerLib
                         InterfaceName = arg.InterfaceName,
                         MethodName = arg.MethodName,
                         Status = DtoStatus.Processed,
-                        Result = new() { TypeName = result.GetType().FullName, Data = result }
+                        Result = new DtoData { TypeName = result.GetType().FullName, Data = result }
                     };
 
             //await Clients.All.SendAsync("ReceiveMessage", "...", retOb.ToString());
@@ -124,7 +124,7 @@ namespace SignalRBaseHubServerLib
         public int KillClientSessionsIfExist(string clientId)
         {
             var interfacesCount = 0;
-            StringBuilder sb = new();
+            var sb = new StringBuilder();
             foreach (var k in _container.DctInterface.Keys)
             {
                 var descriptor = _container.DctInterface[k];

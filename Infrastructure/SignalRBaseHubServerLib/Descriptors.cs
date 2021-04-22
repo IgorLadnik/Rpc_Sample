@@ -65,7 +65,8 @@ namespace SignalRBaseHubServerLib
 
     class InterfaceDescriptorPerSession : BaseInterfaceDescriptor
     {
-        public ConcurrentDictionary<string, SessionDescriptor> CdctSession { get; } = new();
+        public ConcurrentDictionary<string, SessionDescriptor> CdctSession { get; } = 
+            new ConcurrentDictionary<string, SessionDescriptor>();
     }
 
     class SessionDescriptor

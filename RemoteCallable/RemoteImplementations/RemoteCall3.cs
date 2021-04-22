@@ -19,6 +19,6 @@ namespace RemoteImplementations
             _id = Guid.NewGuid();
         }
 
-        public Ret3 GetIdAndParam() => new() { Id = _id, Param = _n };
+        public Ret3 GetIdAndParam() => new Ret3 { Id = _id, Param = _n };
     }
 }

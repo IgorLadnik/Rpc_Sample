@@ -12,12 +12,21 @@ namespace MessageProviderLib
         private const int intervalInMs = 3000;
 
         private Timer _timer;
-        private Random _random = new(11);
+        private Random _random = new Random(11);
 
         private static MessageEventProvider _helper;
-        public static MessageEventProvider Instance => _helper ??= new();
+        public static MessageEventProvider Instance
+        {
+            get
+            {
+                if (_helper == null)
+                    _helper = new MessageEventProvider();
+
+                return _helper;
+            }
+        }
 
         private MessageEventProvider() =>
-            _timer = new Timer(_ => Current = new() { ClientId = $"{Guid.NewGuid()}", Data = _random.Next(rndLowLimit, rndUpperLimit) }, null, 0, intervalInMs);
+            _timer = new Timer(_ => Current = new Message { ClientId = $"{Guid.NewGuid()}", Data = _random.Next(rndLowLimit, rndUpperLimit) }, null, 0, intervalInMs);
     }
 }

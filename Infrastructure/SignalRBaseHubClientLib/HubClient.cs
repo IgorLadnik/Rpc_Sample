@@ -18,10 +18,10 @@ namespace SignalRBaseHubClientLib
         public string ClientId { get; }
 
         public HubConnection Connection { get; protected set; }
-        protected CancellationTokenSource _cts = new();
+        protected CancellationTokenSource _cts = new CancellationTokenSource();
         protected ILogger _logger;
 
-        private Dictionary<string, Type> _dctType = new();
+        private Dictionary<string, Type> _dctType = new Dictionary<string, Type>();
         
         #region Ctor
 
@@ -70,7 +70,7 @@ namespace SignalRBaseHubClientLib
                 var jVal = jOb as JValue;
                 return jVal != null && jVal?.Value.GetType() == type
                         ? jVal.Value
-                        : JsonSerializer.Deserialize($"{jOb}", _dctType[typFullName], new() { PropertyNameCaseInsensitive = true });
+                        : JsonSerializer.Deserialize($"{jOb}", _dctType[typFullName], new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             }
 
             return null;
@@ -160,15 +160,15 @@ namespace SignalRBaseHubClientLib
             if (!IsReady)
                 return null;
 
-            RpcDtoRequest rpcArgs = new()
-                {
-                    ClientId = ClientId,
-                    Id = $"{Guid.NewGuid()}",
-                    Status = DtoStatus.Created,
-                    InterfaceName = interfaceName,
-                    MethodName = methodName,
-                    Args = args?.Select(a => new DtoData { TypeName = a.GetType().FullName, Data = a })?.ToArray()
-                };
+            var rpcArgs = new RpcDtoRequest
+            {
+                ClientId = ClientId,
+                Id = $"{Guid.NewGuid()}",
+                Status = DtoStatus.Created,
+                InterfaceName = interfaceName,
+                MethodName = methodName,
+                Args = args?.Select(a => new DtoData { TypeName = a.GetType().FullName, Data = a })?.ToArray()
+            };
 
             try
             {
