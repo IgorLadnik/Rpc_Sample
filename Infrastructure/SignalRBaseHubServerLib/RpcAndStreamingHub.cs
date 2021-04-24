@@ -23,6 +23,9 @@ namespace SignalRBaseHubServerLib
 
         private static readonly Container _container;
 
+        private Action<ILogger, bool, string, string, object[]> _beforeCall;
+        private Action<ILogger, bool, string, string, object[], object, Exception> _afterCall;
+
         #endregion // Vars
 
         #region Ctor
@@ -30,13 +33,19 @@ namespace SignalRBaseHubServerLib
         static RpcAndStreamingHub() => 
             _container = new Container();
 
-        protected RpcAndStreamingHub(ILoggerFactory loggerFactory, StreamingDataProvider<T> streamingDataProvider)
+        protected RpcAndStreamingHub(
+            ILoggerFactory loggerFactory, 
+            StreamingDataProvider<T> streamingDataProvider = null,
+            Action<ILogger, bool, string, string, object[]> beforeCall = null,
+            Action<ILogger, bool, string, string, object[], object, Exception> afterCall = null)
         {
-            _logger = loggerFactory.CreateLogger<RpcAndStreamingHub<T>>();           
+            _logger = loggerFactory?.CreateLogger<RpcAndStreamingHub<T>>();           
             IsValid = true;
             streamingDataProvider.Add(this);
             _streamingDataProvider = streamingDataProvider;
             _container.SetLogger(loggerFactory);
+            _beforeCall = beforeCall;
+            _afterCall = afterCall;
         }
 
         #endregion // Ctor
@@ -74,26 +83,26 @@ namespace SignalRBaseHubServerLib
             else
                 directCall = localOb as IDirectCall;
 
-            object result;
+            object result = null;
+            Exception ex = null;
+
+            var isDirectCall = directCall != null;
             try
             {
-                if (directCall != null)
-                {
-                    _logger.LogInformation($"Before calling method '{arg.MethodName}()' of interface '{arg.InterfaceName}' - direct call");
-                    result = directCall.DirectCall(arg.MethodName, methodArgs);
-                    _logger.LogInformation($"After calling method '{arg.MethodName}()' of interface '{arg.InterfaceName}' - direct call");
-                }
-                else
-                {
-                    _logger.LogInformation($"Before calling method '{arg.MethodName}()' of interface '{arg.InterfaceName}' - call with reflection");
-                    var methodInfo = localOb?.GetType().GetMethod(arg.MethodName);
-                    result = methodInfo?.Invoke(localOb, methodArgs);
-                    _logger.LogInformation($"After calling method '{arg.MethodName}()' of interface '{arg.InterfaceName}' - call with reflection");
-                }
+                _beforeCall?.Invoke(_logger, isDirectCall, arg.InterfaceName, arg.MethodName, methodArgs);
+
+                result = isDirectCall
+                    ? directCall.DirectCall(arg.MethodName, methodArgs)
+                    : localOb?.GetType().GetMethod(arg.MethodName)?.Invoke(localOb, methodArgs);
             }
             catch (Exception e)
             {
-                throw new Exception($"Failed method '{arg.InterfaceName}.{arg.MethodName}()'", e);
+                _logger?.LogError($"Method '{arg.InterfaceName}.{arg.MethodName}()' failed", e);
+                throw e;
+            }
+            finally 
+            {
+                _afterCall?.Invoke(_logger, isDirectCall, arg.InterfaceName, arg.MethodName, methodArgs, result, ex);
             }
 
             return isOneWay 
@@ -112,14 +121,16 @@ namespace SignalRBaseHubServerLib
         }
 
         public ChannelReader<T> StartStreaming() =>
-            Observable.Create<T>(async observer =>
-            {
-                while (!Context.ConnectionAborted.IsCancellationRequested)
-                {               
-                    await _aev.WaitAsync();
-                    observer.OnNext(_streamingDataProvider.Current);
-                }
-            }).AsChannelReader();
+            _streamingDataProvider == null
+                ? null 
+                : Observable.Create<T>(async observer =>
+                {
+                    while (!Context.ConnectionAborted.IsCancellationRequested)
+                    {
+                        await _aev.WaitAsync();
+                        observer.OnNext(_streamingDataProvider.Current);
+                    }
+                }).AsChannelReader();
 
         public int KillClientSessionsIfExist(string clientId)
         {
@@ -142,7 +153,7 @@ namespace SignalRBaseHubServerLib
             if (sb.Length > 0)
             {
                 var tempStr = sb.ToString().Substring(0, sb.Length - 2);
-                _logger.LogInformation($"Sessions for client '{clientId}' have been deleted for interfaces {tempStr}");
+                _logger?.LogInformation($"Sessions for client '{clientId}' have been deleted for interfaces {tempStr}");
             }
 
             return interfacesCount;
