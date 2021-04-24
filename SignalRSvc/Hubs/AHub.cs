@@ -23,23 +23,23 @@ namespace SignalRSvc.Hubs
         }
 
         public AHub(ILoggerFactory loggerFactory) 
-            : base(loggerFactory, 
-                   MessageEventProvider.Instance,
-                   (logger, isDirectCall, interfaceName, methodName, methodArgs) => 
-                   {
-                       var whatCall = isDirectCall ? "direct" : "reflected";
-                       var message = $"Before calling method '{interfaceName}.{methodName}()' - {whatCall} call";
-                       logger?.LogInformation(message);
-                   },
-                   (logger, isDirectCall, interfaceName, methodName, methodArgs, result, exception) => 
-                   {
-                       var whatCall = isDirectCall ? "direct" : "reflected";
-                       var message = $"After calling method '{interfaceName}.{methodName}()' - {whatCall} call";
-                       if (exception == null)
-                           logger?.LogInformation(message);
-                       else
-                           logger?.LogError(message, exception);
-                   })
+            //: base(loggerFactory, 
+            //       MessageEventProvider.Instance,
+            //       (logger, isDirectCall, interfaceName, methodName, methodArgs) => 
+            //       {
+            //           var whatCall = isDirectCall ? "direct" : "reflected";
+            //           var message = $"Before calling method '{interfaceName}.{methodName}()' - {whatCall} call";
+            //           logger?.LogInformation(message);
+            //       },
+            //       (logger, isDirectCall, interfaceName, methodName, methodArgs, result, exception) => 
+            //       {
+            //           var whatCall = isDirectCall ? "direct" : "reflected";
+            //           var message = $"After calling method '{interfaceName}.{methodName}()' - {whatCall} call";
+            //           if (exception == null)
+            //               logger?.LogInformation(message);
+            //           else
+            //               logger?.LogError(message, exception);
+            //       })
         {
         }
 

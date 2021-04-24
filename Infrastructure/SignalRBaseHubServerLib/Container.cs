@@ -36,6 +36,9 @@ namespace SignalRBaseHubServerLib
 
         internal void SetLogger(ILoggerFactory loggerFactory)
         {
+            if (loggerFactory == null)
+                return;
+
             if (_logger == null)
             {
                 _loggerFactory = loggerFactory;

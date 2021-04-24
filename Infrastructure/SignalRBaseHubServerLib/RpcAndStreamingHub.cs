@@ -34,14 +34,14 @@ namespace SignalRBaseHubServerLib
             _container = new Container();
 
         protected RpcAndStreamingHub(
-            ILoggerFactory loggerFactory, 
+            ILoggerFactory loggerFactory = null, 
             StreamingDataProvider<T> streamingDataProvider = null,
             Action<ILogger, bool, string, string, object[]> beforeCall = null,
             Action<ILogger, bool, string, string, object[], object, Exception> afterCall = null)
         {
             _logger = loggerFactory?.CreateLogger<RpcAndStreamingHub<T>>();           
             IsValid = true;
-            streamingDataProvider.Add(this);
+            streamingDataProvider?.Add(this);
             _streamingDataProvider = streamingDataProvider;
             _container.SetLogger(loggerFactory);
             _beforeCall = beforeCall;
