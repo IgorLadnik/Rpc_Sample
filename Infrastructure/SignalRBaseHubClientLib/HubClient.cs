@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using Microsoft.AspNetCore.SignalR.Client;
 using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Logging;
@@ -22,14 +23,24 @@ namespace SignalRBaseHubClientLib
         protected ILogger _logger;
 
         private Dictionary<string, Type> _dctType = new Dictionary<string, Type>();
-        
+
+        private readonly Action<ILogger, bool, RpcDtoRequest> _beforeCall;
+        private readonly Action<ILogger, bool, RpcDtoRequest, object, TimeSpan, Exception> _afterCall;
+
         #region Ctor
 
-        public HubClient(string url, ILoggerFactory loggerFactory, string clientId = null)
+        public HubClient(string url, 
+                         ILoggerFactory loggerFactory = null, 
+                         string clientId = null,
+                         Action<ILogger, bool, RpcDtoRequest> beforeCall = null,
+                         Action<ILogger, bool, RpcDtoRequest, object, TimeSpan, Exception> afterCall = null)
         {
-            _logger = loggerFactory.CreateLogger<HubClient>();
+            _logger = loggerFactory?.CreateLogger<HubClient>();
             Url = url;
             ClientId = string.IsNullOrWhiteSpace(clientId) ? $"{Guid.NewGuid()}" : clientId;
+
+            _beforeCall = beforeCall;
+            _afterCall = afterCall;
         }
 
         #endregion // Ctor
@@ -107,7 +118,7 @@ namespace SignalRBaseHubClientLib
                     else
                     {
                         var errMessage = $"Hub connection on '{Url}' had failed. ";
-                        _logger.LogError(errMessage, e);
+                        _logger?.LogError(errMessage, e);
                         throw new Exception(errMessage, e);
                     }
                 }
@@ -141,7 +152,7 @@ namespace SignalRBaseHubClientLib
             }
             catch (OperationCanceledException)
             {
-                _logger.LogInformation($"Hub '{Url}': cancellation");
+                _logger?.LogInformation($"Hub '{Url}': cancellation");
             }
         }
 
@@ -170,17 +181,31 @@ namespace SignalRBaseHubClientLib
                 Args = args?.Select(a => new DtoData { TypeName = a.GetType().FullName, Data = a })?.ToArray()
             };
 
+            object obResult = null;
+            Exception ex = null;
+            var sw = new Stopwatch();
             try
             {
+                _beforeCall?.Invoke(_logger, isOneWay, rpcArgs);
+
+                sw.Start();
                 var result = await Connection.InvokeAsync<object>(isOneWay ? "RpcOneWay" : "Rpc", rpcArgs, _cts.Token);
-                return isOneWay ? null : GetResult((JObject)result);
+                obResult = isOneWay ? null : GetResult((JObject)result);
             }
             catch (Exception e)
             {
+                ex = e;
                 var errMessage = $"Hub '{Url}' InvokeAsync() of method '{methodName}()' had failed. ";
-                _logger.LogError(errMessage, e);
+                _logger?.LogError(errMessage, e);
                 throw new Exception(errMessage, e);
             }
+            finally 
+            {
+                sw.Stop();
+                _afterCall?.Invoke(_logger, isOneWay, rpcArgs, obResult, sw.Elapsed, ex);
+            }
+
+            return obResult;
         }
 
         public async Task<object> InvokeAsync(string methodName, params object[] args)
@@ -195,7 +220,7 @@ namespace SignalRBaseHubClientLib
             catch (Exception e)
             {
                 var errMessage = $"Hub '{Url}' InvokeAsync() of method '{methodName}()' had failed. ";
-                _logger.LogError(errMessage, e);
+                _logger?.LogError(errMessage, e);
                 throw new Exception(errMessage, e);
             }
         }
@@ -208,14 +233,14 @@ namespace SignalRBaseHubClientLib
 
         public async Task Cancel() 
         {
-            _logger.LogInformation($"Hub '{Url}': 'Cancel()' is called");
+            _logger?.LogInformation($"Hub '{Url}': 'Cancel()' is called");
             var count = await RpcAsync("_", "KillClientSessionsIfExist", ClientId);
             _cts.Cancel();
         }
 
         public void Dispose() 
         {
-            _logger.LogInformation($"Hub '{Url}': 'Dispose()' is called");
+            _logger?.LogInformation($"Hub '{Url}': 'Dispose()' is called");
 
             if (!_cts.IsCancellationRequested)
                 Cancel().Wait();

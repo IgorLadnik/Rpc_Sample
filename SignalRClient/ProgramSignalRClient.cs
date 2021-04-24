@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using SignalRBaseHubClientLib;
 using RemoteInterfaces;
+using DtoLib;
 
 namespace SignalRClient
 {
@@ -32,7 +33,16 @@ namespace SignalRClient
             logger.LogInformation("SignalRClientTest started");
 
             // Create hub client and connect to server
-            using var hubClient = await new HubClient(url, loggerFactory)
+            using var hubClient = await new HubClient(url, loggerFactory, $"Client-{Guid.NewGuid()}", 
+                        null,
+                        (logger, isOneWay, request, result, duration, exception) => 
+                        {
+                            var message = $"Method '{request.InterfaceName}.{request.MethodName}()', isOneWay = {isOneWay}, requestId = {request.Id} ";
+                            if (exception == null)
+                                logger?.LogInformation($"{message}OK, duration = {duration.TotalMilliseconds} ms");
+                            else
+                                logger?.LogError($"{message}", exception);
+                        })
                     .RegisterInterface<IRemoteCall1>()
                     .RegisterInterface<IRemoteCall2>()
                     .RegisterInterface<IRemoteCall3>()

@@ -3,6 +3,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Channels;
 using System.Text;
+using System.Diagnostics;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using AsyncAutoResetEventLib;
@@ -23,8 +24,8 @@ namespace SignalRBaseHubServerLib
 
         private static readonly Container _container;
 
-        private Action<ILogger, bool, string, string, object[]> _beforeCall;
-        private Action<ILogger, bool, string, string, object[], object, Exception> _afterCall;
+        private readonly Action<ILogger, bool, string, string, string, string, object[]> _beforeCall;
+        private readonly Action<ILogger, bool, string, string, string, string, object[], object, TimeSpan, Exception> _afterCall;
 
         #endregion // Vars
 
@@ -36,8 +37,8 @@ namespace SignalRBaseHubServerLib
         protected RpcAndStreamingHub(
             ILoggerFactory loggerFactory = null, 
             StreamingDataProvider<T> streamingDataProvider = null,
-            Action<ILogger, bool, string, string, object[]> beforeCall = null,
-            Action<ILogger, bool, string, string, object[], object, Exception> afterCall = null)
+            Action<ILogger, bool, string, string, string, string, object[]> beforeCall = null,
+            Action<ILogger, bool, string, string, string, string, object[], object, TimeSpan, Exception> afterCall = null)
         {
             _logger = loggerFactory?.CreateLogger<RpcAndStreamingHub<T>>();           
             IsValid = true;
@@ -86,10 +87,11 @@ namespace SignalRBaseHubServerLib
             object result = null;
             Exception ex = null;
             var isDirectCall = directCall != null;
+            var sw = new Stopwatch();
             try
             {
-                _beforeCall?.Invoke(_logger, isDirectCall, arg.InterfaceName, arg.MethodName, methodArgs);
-
+                _beforeCall?.Invoke(_logger, isDirectCall, arg.Id, arg.ClientId, arg.InterfaceName, arg.MethodName, methodArgs);
+                sw.Start();
                 result = isDirectCall
                     ? directCall.DirectCall(arg.MethodName, methodArgs)
                     : localOb?.GetType().GetMethod(arg.MethodName)?.Invoke(localOb, methodArgs);
@@ -101,7 +103,8 @@ namespace SignalRBaseHubServerLib
             }
             finally 
             {
-                _afterCall?.Invoke(_logger, isDirectCall, arg.InterfaceName, arg.MethodName, methodArgs, result, ex);
+                sw.Stop();
+                _afterCall?.Invoke(_logger, isDirectCall, arg.Id, arg.ClientId, arg.InterfaceName, arg.MethodName, methodArgs, result, sw.Elapsed, ex);
             }
 
             return isOneWay 

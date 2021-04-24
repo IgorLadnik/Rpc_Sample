@@ -22,24 +22,24 @@ namespace SignalRSvc.Hubs
             RegisterSingleton<IRemoteCall3>(new RemoteCall3(5));
         }
 
-        public AHub(ILoggerFactory loggerFactory) 
-            //: base(loggerFactory, 
-            //       MessageEventProvider.Instance,
-            //       (logger, isDirectCall, interfaceName, methodName, methodArgs) => 
-            //       {
-            //           var whatCall = isDirectCall ? "direct" : "reflected";
-            //           var message = $"Before calling method '{interfaceName}.{methodName}()' - {whatCall} call";
-            //           logger?.LogInformation(message);
-            //       },
-            //       (logger, isDirectCall, interfaceName, methodName, methodArgs, result, exception) => 
-            //       {
-            //           var whatCall = isDirectCall ? "direct" : "reflected";
-            //           var message = $"After calling method '{interfaceName}.{methodName}()' - {whatCall} call";
-            //           if (exception == null)
-            //               logger?.LogInformation(message);
-            //           else
-            //               logger?.LogError(message, exception);
-            //       })
+        public AHub(ILoggerFactory loggerFactory)
+            : base(loggerFactory,
+                   MessageEventProvider.Instance,
+                   (logger, isDirectCall, requestId, clientId, interfaceName, methodName, methodArgs) =>
+                   {
+                       var whatCall = isDirectCall ? "direct" : "reflected";
+                       var message = $"Client: {clientId}, requestId = {requestId}. Before calling method '{interfaceName}.{methodName}()' - {whatCall} call";
+                       logger?.LogInformation(message);
+                   },
+                   (logger, isDirectCall, requestId, clientId, interfaceName, methodName, methodArgs, result, duration, exception) =>
+                   {
+                       var whatCall = isDirectCall ? "direct" : "reflected";
+                       var message = $"Client: {clientId}, requestId = {requestId}. After calling method '{interfaceName}.{methodName}()' - {whatCall} call, duration = {duration.TotalMilliseconds} ms";
+                       if (exception == null)
+                           logger?.LogInformation(message);
+                       else
+                           logger?.LogError(message, exception);
+                   })
         {
         }
 
