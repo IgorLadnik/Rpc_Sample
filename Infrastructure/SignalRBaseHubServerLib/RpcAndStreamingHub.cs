@@ -85,7 +85,6 @@ namespace SignalRBaseHubServerLib
 
             object result = null;
             Exception ex = null;
-
             var isDirectCall = directCall != null;
             try
             {
