@@ -20,8 +20,7 @@ The following features are supported:
 
 ## Brief Solution Description
 
-Library *SignalRBaseHubServerLib* provides infrastructure for server side, whereas *SignalRBaseHubClientLib* 
-contains base class *HubClient* for hub client. *DtoLib* defines Data Transfer Objects (DTO) for request and response shared between server and client. *AsyncAutoResetEventLib* provides asynchronous version of auto-reset event used in streaming. *SignalRBaseHubServerLib* provides interfaces for streaming (*IStreamingDataProvider&lt;T&gt;* and *ISetEvent*), logging *ILog* and WCF replacement *IDirectCall*.  
+Library *SignalRBaseHubServerLib* provides infrastructure for server side, whereas *SignalRBaseHubClientLib* contains base class *HubClient* for hub client.  *DtoLib* defines Data Transfer Objects (DTO) for request and response shared between server and client. *AsyncAutoResetEventLib* provides asynchronous version of auto-reset event used in streaming. *SignalRBaseHubServerLib* provides interfaces for streaming (*IStreamingDataProvider&lt;T&gt;* and *ISetEvent*), logging *ILog* and WCF replacement *IDirectCall*.  
 
 *MessageProviderLib* library supplies class *MessageEventProvider : StreamingDataProvider&lt;Message&gt;* providing event stream.
 
