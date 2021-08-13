@@ -1,2 +1,2 @@
-cd SignalRSvc\bin\Release\net5.0
+cd bin
 SignalRSvc.exe TLS

@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using SignalRBaseHubClientLib;
 using RemoteInterfaces;
-using DtoLib;
 
 namespace SignalRClient
 {

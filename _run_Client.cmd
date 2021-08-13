@@ -1,2 +1,2 @@
-cd SignalRClient\bin\Release\net5.0
+cd bin
 SignalRClient.exe TLS
