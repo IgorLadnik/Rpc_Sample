@@ -1,6 +1,6 @@
 # Remote Procedure Calls (RPC) with .NET 5: Streaming and Replacement for WCF 
 
-This work Remote Procedure Call on .NET5
+This work presents streaming and WCF replacement solution with .NET 5 
 
 ## Introduction
 
