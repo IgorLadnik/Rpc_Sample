@@ -14,3 +14,5 @@ docker container stop e92318f1e0e5
 docker rm e92318f1e0e5
 
 docker rmi --force abc....
+
+docker rmi --force signalr-svc:v1
