@@ -1,0 +1,16 @@
+Docker commands:
+
+docker images
+
+docker build -t signalr-svc:v1 .
+
+docker run --publish 15000:15000 signalr-svc:v1
+
+// Get running containers
+docker ps
+
+docker container stop e92318f1e0e5
+
+docker rm e92318f1e0e5
+
+docker rmi --force abc....

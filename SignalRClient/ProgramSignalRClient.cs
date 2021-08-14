@@ -12,14 +12,12 @@ namespace SignalRClient
 {
     class ProgramSignalRClient
     {
-        //private const string Url    = "http://localhost:15000/hub/a";
-        //private const string UrlTls = "https://localhost:15001/hub/a";
-        private const string Url = "http://localhost:15000/hub/a";
+        private const string Url    = "http://localhost:15000/hub/a";
+        private const string UrlTls = "https://localhost:15001/hub/a";
 
         private static async Task Main(string[] args)
         {
-            //var url = args.Length > 0 && args[0].ToLower() == "tls" ? UrlTls : Url;
-            var url = Url;
+            var url = args.Length > 0 && args[0].ToLower() == "tls" ? UrlTls : Url;
 
             using ILoggerFactory loggerFactory =
                 LoggerFactory.Create(builder =>
